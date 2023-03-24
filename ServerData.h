@@ -1,8 +1,7 @@
 #pragma once
-#include <forward_list>
-#include <cstdint>
 #include <memory>
 #include <optional>
+#include <limits>
 #include "RoutingRecord.h"
 #include "IPNetwork.h"
 
@@ -10,12 +9,12 @@ class ServerData
 {
 public:
 
+    using PopIdType = RoutingRecord::PopIdType;
+
     struct DNSRecord
     {
-        DNSRecord(int spl, uint16_t pop) : scopePrefixLength(spl), popId(pop) {}
-
         int scopePrefixLength;
-        uint16_t popId;
+        PopIdType popId;
     };
 
     ServerData();
@@ -25,11 +24,11 @@ public:
 
 private:
 
-    std::forward_list<DNSRecord> records;
-
     struct TrieNode
     {
-        DNSRecord const* record = nullptr;
+        static auto const invalidPopId = std::numeric_limits<PopIdType>::max();
+
+        PopIdType popId = invalidPopId;
         std::unique_ptr<TrieNode> childs[2];
     };
 

@@ -8,5 +8,7 @@ struct RoutingRecord
     explicit RoutingRecord(std::string const& s);
     
     IPNetwork ntw;
-    uint16_t popId;
+
+    using PopIdType = uint16_t;
+    PopIdType popId;
 };

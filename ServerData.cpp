@@ -1,4 +1,5 @@
 #include "ServerData.h"
+#include <cassert>
 
 ServerData::ServerData()
 {
@@ -8,8 +9,9 @@ ServerData::ServerData()
 void ServerData::AddRecord(RoutingRecord const& r)
 {
     auto* curNode = root.get();
+    auto bitIdx = 0;
 
-    for (auto bitIdx = 0; bitIdx < r.ntw.prefixLength; ++bitIdx)
+    for (; bitIdx < r.ntw.prefixLength; ++bitIdx)
     {
         auto& child = curNode->childs[r.ntw.ip.GetBit(bitIdx)];
 
@@ -21,13 +23,15 @@ void ServerData::AddRecord(RoutingRecord const& r)
         curNode = child.get();
     }
 
-    curNode->record = &records.emplace_front(r.ntw.prefixLength, r.popId);
+    assert(bitIdx == r.ntw.prefixLength);
+    assert(r.popId != TrieNode::invalidPopId);
+    curNode->popId = r.popId;
 }
 
 std::optional<ServerData::DNSRecord> ServerData::Route(IPNetwork const& network) const
 {
     auto const* curNode = root.get();
-    auto const* mostSpecificRecord = curNode->record;
+    auto mostSpecificDNSRecord = DNSRecord{0, curNode->popId};
 
     for (auto bitIdx = 0; bitIdx < network.prefixLength; ++bitIdx)
     {
@@ -40,18 +44,18 @@ std::optional<ServerData::DNSRecord> ServerData::Route(IPNetwork const& network)
 
         curNode = child.get();
 
-        if (curNode->record != nullptr)
+        if (curNode->popId != TrieNode::invalidPopId)
         {
-            mostSpecificRecord = curNode->record;
+            mostSpecificDNSRecord = {bitIdx + 1, curNode->popId};
         }
     }
 
-    if (mostSpecificRecord == nullptr)
+    if (mostSpecificDNSRecord.popId == TrieNode::invalidPopId)
     {
         return {};
     }
     else
     {
-        return {*mostSpecificRecord};
+        return {mostSpecificDNSRecord};
     }
 }

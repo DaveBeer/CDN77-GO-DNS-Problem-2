@@ -40,7 +40,7 @@ void IPv6Address::LoadFromString(std::string const& s, DataType::size_type const
     iss >> std::hex;
 
     char colonDummy;
-    uint16_t quibble;
+    DataType::value_type quibble;
     auto i = dataStartPos;
 
     while (iss >> quibble)
