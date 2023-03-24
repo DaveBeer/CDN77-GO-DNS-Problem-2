@@ -1,5 +1,7 @@
 # CDN77-GO-DNS-Problem-2
 
+Solution for particular exercise.
+
 ## How to compile
 
 ```
