@@ -28,8 +28,10 @@ private:
     {
         static auto const invalidPopId = std::numeric_limits<PopIdType>::max();
 
-        PopIdType popId = invalidPopId;
+        DNSRecord dns = {0, invalidPopId};
         std::unique_ptr<TrieNode> childs[2];
+
+        void UpdateScopePrefixLength(int newSpl);
     };
 
     std::unique_ptr<TrieNode> root;
